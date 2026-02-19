@@ -101,25 +101,25 @@ def main() -> None:
         },
         "deckBuilding": {
             "mainFilters": [
-                "color",
+                "colors",
                 "category",
                 "cost",
                 "power",
-                "attribute",
-                "type",
+                "attributes",
+                "types",
                 "rarity",
-                "block",
+                "block_number",
             ],
             "formats": ["Classic"],
             "filtersDict": {
-                "color": {"label": "Color", "field": "colors", "type": "multi", "isDictionary": False},
+                "colors": {"label": "Color", "field": "colors", "type": "multi", "isDictionary": False},
                 "category": {"label": "Category", "field": "category", "type": "multi", "isDictionary": False},
                 "cost": {"label": "Cost", "field": "cost", "type": "range", "isDictionary": False},
                 "power": {"label": "Power", "field": "power", "type": "range", "isDictionary": False},
-                "attribute": {"label": "Attribute", "field": "attributes", "type": "multi", "isDictionary": False},
-                "type": {"label": "Type", "field": "types", "type": "multi", "isDictionary": False},
+                "attributes": {"label": "Attribute", "field": "attributes", "type": "multi", "isDictionary": False},
+                "types": {"label": "Type", "field": "types", "type": "multi", "isDictionary": False},
                 "rarity": {"label": "Rarity", "field": "rarity", "type": "multi", "isDictionary": False},
-                "block": {"label": "Block", "field": "block_number", "type": "multi", "isDictionary": False},
+                "block_number": {"label": "Block", "field": "block_number", "type": "multi", "isDictionary": False},
             },
             "formatsDict": {
                 "Classic": {
