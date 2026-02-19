@@ -1,0 +1,75 @@
+name: Build One Piece TCG Arena data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 4 * * *"
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Fetch Vegapull data
+        run: |
+          ./scripts/fetch_vegapull.sh .cache/vegapull
+
+      - name: Build cards.json
+        run: |
+          python scripts/build_cards.py \
+            --vegapull-dir .cache/vegapull \
+            --output dist/cards.json
+
+      - name: Build game.json
+        env:
+          REPOSITORY: ${{ github.repository }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+        run: |
+          REPO_NAME="${REPOSITORY#*/}"
+          CARDS_URL="https://${REPOSITORY_OWNER}.github.io/${REPO_NAME}/cards.json"
+
+          python scripts/build_game.py \
+            --cards dist/cards.json \
+            --cards-url "$CARDS_URL" \
+            --output dist/game.json
+
+      - name: Create build info
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          cards = json.loads(Path('dist/cards.json').read_text(encoding='utf-8'))
+          Path('dist/build-info.json').write_text(
+              json.dumps(
+                  {
+                      'generatedAtUtc': datetime.now(timezone.utc).isoformat(),
+                      'cardsCount': cards.get('count', 0),
+                  },
+                  indent=2,
+              ) + '\n',
+              encoding='utf-8',
+          )
+          PY
+
+      - name: Publish to GitHub Pages (gh-pages branch)
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          force_orphan: true
