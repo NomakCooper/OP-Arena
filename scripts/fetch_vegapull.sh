@@ -14,13 +14,16 @@ fi
 pushd "$OUT_DIR" >/dev/null
 cargo build --release
 
-# `vega pull all` currently expects a TTY-capable stdin even in CI contexts.
-# GitHub Actions runs commands without an attached TTY, so we wrap it with
-# `script` to provide a pseudo-terminal and avoid: "The input device is not a TTY".
+# `vega pull all` is interactive: it asks for language and confirmation.
+# In CI we provide deterministic answers over stdin and, when possible, run
+# under `script` so `vega` still sees a TTY-capable terminal.
+VEGA_PULL_CMD="./target/release/vega pull all"
+VEGA_PULL_INPUT=$'english-asia\ny\n'
+
 if command -v script >/dev/null 2>&1; then
-  script -q -e -c "./target/release/vega pull all" /dev/null
+  printf '%s' "$VEGA_PULL_INPUT" | script -q -e -c "$VEGA_PULL_CMD" /dev/null
 else
-  ./target/release/vega pull all
+  printf '%s' "$VEGA_PULL_INPUT" | $VEGA_PULL_CMD
 fi
 popd >/dev/null
 
