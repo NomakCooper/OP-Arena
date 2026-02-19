@@ -72,6 +72,70 @@ def card_identifier(card: dict[str, Any]) -> str:
     return ""
 
 
+def _first_non_empty(card: dict[str, Any], keys: tuple[str, ...], default: Any = "") -> Any:
+    for key in keys:
+        value = card.get(key)
+        if value not in (None, "", [], {}):
+            return value
+    return default
+
+
+def _as_list(value: Any) -> list[str]:
+    if isinstance(value, list):
+        return [str(item).strip() for item in value if str(item).strip()]
+    if isinstance(value, str):
+        if "/" in value:
+            chunks = value.split("/")
+        elif "," in value:
+            chunks = value.split(",")
+        else:
+            chunks = [value]
+        return [chunk.strip() for chunk in chunks if chunk.strip()]
+    return []
+
+
+def _as_int_or_none(value: Any) -> int | None:
+    if value in (None, "", "-"):
+        return None
+    try:
+        return int(str(value).replace("+", "").strip())
+    except (TypeError, ValueError):
+        return None
+
+
+def normalize_card(card: dict[str, Any]) -> dict[str, Any]:
+    normalized = dict(card)
+
+    card_id = str(_first_non_empty(card, ("id", "code", "card_id", "number", "cardNumber"), "")).strip()
+    number = str(_first_non_empty(card, ("number", "cardNumber", "id", "code"), "")).strip()
+    category = str(_first_non_empty(card, ("category", "card_type", "type_en", "kind"), "")).strip()
+    colors = _as_list(_first_non_empty(card, ("colors", "color"), []))
+    attributes = _as_list(_first_non_empty(card, ("attributes", "attribute"), []))
+
+    normalized.update(
+        {
+            "id": card_id,
+            "number": number,
+            "name": str(_first_non_empty(card, ("name", "card_name", "name_en"), "")).strip(),
+            "category": category,
+            "colors": colors,
+            "cost": _as_int_or_none(_first_non_empty(card, ("cost",), None)),
+            "power": _as_int_or_none(_first_non_empty(card, ("power",), None)),
+            "counter": _as_int_or_none(_first_non_empty(card, ("counter",), None)),
+            "life": _as_int_or_none(_first_non_empty(card, ("life",), None)),
+            "attributes": attributes,
+            "type": str(_first_non_empty(card, ("type", "types", "trait"), "")).strip(),
+            "rarity": str(_first_non_empty(card, ("rarity",), "")).strip(),
+            "block_number": str(_first_non_empty(card, ("block_number", "blockNumber", "block"), "")).strip(),
+            "set": str(_first_non_empty(card, ("set", "set_name", "setName"), "")).strip(),
+            "image": str(_first_non_empty(card, ("image", "image_url", "img", "thumbnail"), "")).strip(),
+            "text": str(_first_non_empty(card, ("text", "effect", "description"), "")).strip(),
+        }
+    )
+
+    return normalized
+
+
 def main() -> None:
     args = parse_args()
     vegapull_dir: Path = args.vegapull_dir
@@ -105,7 +169,7 @@ def main() -> None:
             else:
                 fallback_cards.append(normalized)
 
-    cards = list(merged.values()) + fallback_cards
+    cards = [normalize_card(card) for card in (list(merged.values()) + fallback_cards)]
     cards.sort(key=lambda c: (str(c.get("id") or c.get("code") or ""), str(c.get("name") or "")))
 
     output.parent.mkdir(parents=True, exist_ok=True)
