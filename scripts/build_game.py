@@ -20,6 +20,8 @@ def parse_args() -> argparse.Namespace:
 def load_cards(cards_path: Path) -> list[dict[str, Any]]:
     payload = json.loads(cards_path.read_text(encoding="utf-8"))
     if isinstance(payload, dict):
+        if all(isinstance(value, dict) for value in payload.values()):
+            return [card for card in payload.values() if isinstance(card, dict)]
         cards = payload.get("cards", [])
         if isinstance(cards, list):
             return [card for card in cards if isinstance(card, dict)]

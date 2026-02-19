@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -160,39 +161,78 @@ def _normalize_category(value: Any) -> str:
     return mapping.get(normalized, text)
 
 
-def normalize_card(card: dict[str, Any]) -> dict[str, Any]:
-    normalized = dict(card)
+def _coerce_int(value: Any, fallback: int = 0) -> int:
+    parsed = _as_int_or_none(value)
+    if parsed is not None:
+        return parsed
+    return fallback
 
+
+def _coerce_text_number(value: Any) -> str:
+    if value in (None,):
+        return ""
+    text = str(value).strip()
+    if text in ("-", "None"):
+        return ""
+    return text
+
+
+def _normalize_type_for_tcg_arena(category: str, card_type: str) -> str | bool:
+    if category.lower() == "leader":
+        return False
+    return card_type
+
+
+def _normalize_name(value: str) -> str:
+    return re.sub(r"\s+", " ", value).strip()
+
+
+def normalize_card(card: dict[str, Any], card_back_image: str) -> dict[str, Any]:
     card_id = str(_first_non_empty(card, ("id", "code", "card_id", "number", "cardNumber"), "")).strip()
-    number = str(_first_non_empty(card, ("number", "cardNumber", "id", "code"), "")).strip()
+    name = _normalize_name(str(_first_non_empty(card, ("name", "card_name", "name_en"), "")).strip())
     category = _normalize_category(_first_non_empty(card, ("category", "card_type", "type_en", "kind"), ""))
+    card_type = str(_first_non_empty(card, ("type",), category)).strip()
     colors = _as_list(_first_non_empty(card, ("colors", "color"), []))
     attributes = _as_list(_first_non_empty(card, ("attributes", "attribute"), []))
-    types = _as_list(_first_non_empty(card, ("types", "type", "trait"), []))
+    types = _as_list(_first_non_empty(card, ("types", "trait"), []))
+    effect = str(_first_non_empty(card, ("effect", "text", "description"), "")).strip()
+    cost_text = _coerce_text_number(_first_non_empty(card, ("cost",), ""))
+    cost_int = _coerce_int(_first_non_empty(card, ("cost",), 0), fallback=0)
 
-    normalized.update(
-        {
-            "id": card_id,
-            "number": number,
-            "name": str(_first_non_empty(card, ("name", "card_name", "name_en"), "")).strip(),
-            "category": category,
-            "colors": colors,
-            "cost": _as_int_or_none(_first_non_empty(card, ("cost",), None)),
-            "power": _as_int_or_none(_first_non_empty(card, ("power",), None)),
-            "counter": _as_int_or_none(_first_non_empty(card, ("counter",), None)),
-            "life": _as_int_or_none(_first_non_empty(card, ("life",), None)),
-            "attributes": attributes,
-            "types": types,
-            "type": str(_first_non_empty(card, ("type", "types", "trait"), "")).strip(),
-            "rarity": str(_first_non_empty(card, ("rarity",), "")).strip(),
-            "block_number": str(_first_non_empty(card, ("block_number", "blockNumber", "block"), "")).strip(),
-            "set": str(_first_non_empty(card, ("set", "set_name", "setName"), "")).strip(),
-            "image": _extract_image_url(card),
-            "text": str(_first_non_empty(card, ("text", "effect", "description"), "")).strip(),
-        }
-    )
+    normalized_type = _normalize_type_for_tcg_arena(category, card_type)
+    front_image = _extract_image_url(card)
 
-    return normalized
+    return {
+        "id": card_id,
+        "isToken": False,
+        "face": {
+            "front": {
+                "name": name,
+                "type": normalized_type,
+                "cost": cost_int,
+                "image": front_image,
+                "isHorizontal": False,
+            },
+            "back": {
+                "name": name,
+                "type": "" if normalized_type is False else normalized_type,
+                "cost": cost_int,
+                "image": card_back_image,
+                "isHorizontal": False,
+            },
+        },
+        "name": name,
+        "type": normalized_type,
+        "cost": cost_text,
+        "rarity": str(_first_non_empty(card, ("rarity",), "")).strip(),
+        "category": category,
+        "attributes": attributes,
+        "power": _coerce_text_number(_first_non_empty(card, ("power",), "")),
+        "colors": colors,
+        "block_number": str(_first_non_empty(card, ("block_number", "blockNumber", "block"), "")).strip(),
+        "types": types,
+        "effect": effect,
+    }
 
 
 def main() -> None:
@@ -228,27 +268,24 @@ def main() -> None:
             else:
                 fallback_cards.append(normalized)
 
-    cards = [normalize_card(card) for card in (list(merged.values()) + fallback_cards)]
-    cards.sort(key=lambda c: (str(c.get("id") or c.get("code") or ""), str(c.get("name") or "")))
+    card_back_image = "https://cf.geekdo-images.com/cpyej29PfijgBDtiOuSFsQ__imagepage/img/aDMUMr-kD-RtLyOR2sKmzXtaXtk=/fit-in/900x600/filters:no_upscale():strip_icc()/pic6974116.jpg"
+    cards = [normalize_card(card, card_back_image) for card in (list(merged.values()) + fallback_cards)]
+    cards.sort(key=lambda c: (str(c.get("id") or ""), str(c.get("name") or "")))
+
+    cards_by_id: dict[str, dict[str, Any]] = {}
+    for card in cards:
+        card_id = str(card.get("id") or "").strip()
+        if card_id:
+            cards_by_id[card_id] = card
 
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(
-        json.dumps(
-            {
-                "game": "one-piece-card-game",
-                "language": "en",
-                "generatedBy": "scripts/build_cards.py",
-                "count": len(cards),
-                "cards": cards,
-            },
-            indent=2,
-            ensure_ascii=False,
-        )
+        json.dumps(cards_by_id, indent=2, ensure_ascii=False)
         + "\n",
         encoding="utf-8",
     )
 
-    print(f"Merged {len(cards)} cards into {output}")
+    print(f"Merged {len(cards_by_id)} cards into {output}")
 
 
 if __name__ == "__main__":

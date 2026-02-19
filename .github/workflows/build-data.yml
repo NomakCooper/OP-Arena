@@ -58,11 +58,12 @@ jobs:
           from pathlib import Path
 
           cards = json.loads(Path('dist/cards.json').read_text(encoding='utf-8'))
+          cards_count = len(cards) if isinstance(cards, dict) else cards.get('count', 0)
           Path('dist/build-info.json').write_text(
               json.dumps(
                   {
                       'generatedAtUtc': datetime.now(timezone.utc).isoformat(),
-                      'cardsCount': cards.get('count', 0),
+                      'cardsCount': cards_count,
                   },
                   indent=2,
               ) + '\n',
