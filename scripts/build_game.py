@@ -60,6 +60,17 @@ def collect_game_metadata(cards: list[dict[str, Any]]) -> tuple[list[str], list[
     return colors, categories, rarities, leaders, non_leaders
 
 
+def _layout_column(content: list[Any]) -> dict[str, Any]:
+    return {"direction": "column", "content": content, "noQuickActions": False}
+
+
+def _layout_row(content: list[Any], *, symmetrical_for_opponents: bool | None = None) -> dict[str, Any]:
+    payload: dict[str, Any] = {"direction": "row", "content": content, "noQuickActions": False}
+    if symmetrical_for_opponents is not None:
+        payload["isSymetricalForOpponents"] = symmetrical_for_opponents
+    return payload
+
+
 def main() -> None:
     args = parse_args()
     cards = load_cards(args.cards)
@@ -146,18 +157,14 @@ def main() -> None:
                 "hideFacedDownCards": False,
                 "sections": {
                     "customSections": ["Life", "Deck", "Trash", "Leader", "Stage", "Characters", "Cost", "DonDeck"],
-                    "layout": {
-                        "direction": "row",
-                        "isSymetricalForOpponents": True,
-                        "content": [
-                            {"direction": "column", "content": ["Life", "DonDeck"]},
-                            {
-                                "direction": "column",
-                                "content": ["Characters", {"direction": "row", "content": ["Leader", "Stage", "Deck"]}, "Cost"],
-                            },
-                            {"direction": "column", "content": ["Trash"]},
+                    "layout": _layout_row(
+                        [
+                            _layout_column(["Life", "DonDeck"]),
+                            _layout_column(["Characters", _layout_row(["Leader", "Stage", "Deck"]), "Cost"]),
+                            _layout_column(["Trash"]),
                         ],
-                    },
+                        symmetrical_for_opponents=True,
+                    ),
                     "categoriesAlreadyOnBoard": [],
                     "autoPlayFromHand": {"Character": "Characters", "Stage": "Stage"},
                     "autoPlayFromStack": {},
