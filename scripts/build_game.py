@@ -115,7 +115,7 @@ def main() -> None:
                 "cost": {"label": "Cost", "field": "cost", "type": "range", "isDictionary": False},
                 "power": {"label": "Power", "field": "power", "type": "range", "isDictionary": False},
                 "attribute": {"label": "Attribute", "field": "attributes", "type": "multi", "isDictionary": False},
-                "type": {"label": "Type", "field": "type", "type": "multi", "isDictionary": False},
+                "type": {"label": "Type", "field": "types", "type": "multi", "isDictionary": False},
                 "rarity": {"label": "Rarity", "field": "rarity", "type": "multi", "isDictionary": False},
                 "block": {"label": "Block", "field": "block_number", "type": "multi", "isDictionary": False},
             },
