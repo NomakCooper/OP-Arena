@@ -110,7 +110,7 @@ def main() -> None:
                 "rarity",
                 "block_number",
             ],
-            "formats": ["Classic"],
+            "formats": [{"name": "Classic"}],
             "filtersDict": {
                 "colors": {"label": "Color", "field": "colors", "type": "multi", "isDictionary": False},
                 "category": {"label": "Category", "field": "category", "type": "multi", "isDictionary": False},
