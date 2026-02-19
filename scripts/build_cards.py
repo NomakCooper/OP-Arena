@@ -18,7 +18,8 @@ def parse_args() -> argparse.Namespace:
 
 def iter_json_files(root: Path):
     for path in root.rglob("*.json"):
-        if any(part.startswith(".") for part in path.parts):
+        relative_parts = path.relative_to(root).parts
+        if any(part.startswith(".") for part in relative_parts):
             continue
         yield path
 
