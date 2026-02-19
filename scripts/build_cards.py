@@ -104,7 +104,7 @@ def _as_int_or_none(value: Any) -> int | None:
 
 
 def _extract_image_url(card: dict[str, Any]) -> str:
-    direct = _first_non_empty(card, ("image", "image_url", "img", "thumbnail"), "")
+    direct = _first_non_empty(card, ("image", "image_url", "img", "thumbnail", "img_full_url", "img_url"), "")
     if isinstance(direct, str) and direct.strip():
         return direct.strip()
 
@@ -142,12 +142,30 @@ def _extract_image_url(card: dict[str, Any]) -> str:
     return ""
 
 
+def _normalize_category(value: Any) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+
+    normalized = text.lower().replace("_", " ").replace("-", " ")
+    mapping = {
+        "leader": "Leader",
+        "character": "Character",
+        "event": "Event",
+        "stage": "Stage",
+        "don": "DON!!",
+        "don!!": "DON!!",
+    }
+
+    return mapping.get(normalized, text)
+
+
 def normalize_card(card: dict[str, Any]) -> dict[str, Any]:
     normalized = dict(card)
 
     card_id = str(_first_non_empty(card, ("id", "code", "card_id", "number", "cardNumber"), "")).strip()
     number = str(_first_non_empty(card, ("number", "cardNumber", "id", "code"), "")).strip()
-    category = str(_first_non_empty(card, ("category", "card_type", "type_en", "kind"), "")).strip()
+    category = _normalize_category(_first_non_empty(card, ("category", "card_type", "type_en", "kind"), ""))
     colors = _as_list(_first_non_empty(card, ("colors", "color"), []))
     attributes = _as_list(_first_non_empty(card, ("attributes", "attribute"), []))
     types = _as_list(_first_non_empty(card, ("types", "type", "trait"), []))
