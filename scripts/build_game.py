@@ -19,6 +19,8 @@ def parse_args() -> argparse.Namespace:
 
 def load_cards(cards_path: Path) -> list[dict[str, Any]]:
     payload = json.loads(cards_path.read_text(encoding="utf-8"))
+    if isinstance(payload, list):
+        return [card for card in payload if isinstance(card, dict)]
     if isinstance(payload, dict):
         if all(isinstance(value, dict) for value in payload.values()):
             return [card for card in payload.values() if isinstance(card, dict)]
@@ -110,7 +112,13 @@ def main() -> None:
                 "rarity",
                 "block_number",
             ],
-            "formats": [{"name": "Classic"}],
+            "formats": [
+                {
+                    "title": "Classic",
+                    "gameplay": "OP TCG Classic format",
+                    "customCategories": [],
+                }
+            ],
             "filtersDict": {
                 "colors": {"label": "Color", "field": "colors", "type": "multi", "isDictionary": False},
                 "category": {"label": "Category", "field": "category", "type": "multi", "isDictionary": False},
@@ -120,21 +128,6 @@ def main() -> None:
                 "types": {"label": "Type", "field": "types", "type": "multi", "isDictionary": False},
                 "rarity": {"label": "Rarity", "field": "rarity", "type": "multi", "isDictionary": False},
                 "block_number": {"label": "Block", "field": "block_number", "type": "multi", "isDictionary": False},
-            },
-            "formatsDict": {
-                "Classic": {
-                    "name": "Classic",
-                    "rules": {
-                        "leader": {"min": 1, "max": 1, "category": "Leader"},
-                        "mainDeck": {
-                            "size": 50,
-                            "allowedCategories": ["Character", "Event", "Stage"],
-                            "maxSameCardNumber": 4,
-                            "colorsMustBeSubsetOfLeader": True,
-                        },
-                        "donDeck": {"size": 10, "name": "DON!! Deck"},
-                    },
-                }
             },
         },
         "gameplay": {
@@ -154,7 +147,20 @@ def main() -> None:
                     "firstPlayerSkipsDrawFirstTurn": True,
                 },
                 "defaultNotes": "Characters cannot attack the turn they are played. You can have max 5 Characters and max 1 Stage on the field. You can attack Leader or a rested Character.",
-                "tokens": [{"name": "First Player", "count": 1}, {"name": "DON!!", "count": 10}],
+                "tokens": [
+                    {
+                        "name": "First Player",
+                        "image": "",
+                        "isUnique": True,
+                        "leavesAtEndOfTurn": False,
+                    },
+                    {
+                        "name": "DON!!",
+                        "image": "",
+                        "isUnique": False,
+                        "leavesAtEndOfTurn": False,
+                    },
+                ],
                 "countersStartingValues": [0],
                 "hideFacedDownCards": False,
                 "sections": {
