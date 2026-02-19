@@ -1,3 +1,5 @@
+# REPO WORK IN PROGRESS
+
 # OP-Arena
 
 ![Static Badge](https://img.shields.io/badge/TCG-red?logo=bandai&label=ONE%20PIECE) ![Static Badge](https://img.shields.io/badge/Arena-red?label=TCG)
@@ -15,3 +17,7 @@ The GitHub Action builds and publishes the following files:
 - `build-info.json`: generation metadata
 
 Published files are pushed to the `gh-pages` branch and available through GitHub Pages.
+
+## Deck Building
+
+![Deck-build](https://files.catbox.moe/tygapg.PNG)
