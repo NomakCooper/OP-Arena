@@ -103,6 +103,45 @@ def _as_int_or_none(value: Any) -> int | None:
         return None
 
 
+def _extract_image_url(card: dict[str, Any]) -> str:
+    direct = _first_non_empty(card, ("image", "image_url", "img", "thumbnail"), "")
+    if isinstance(direct, str) and direct.strip():
+        return direct.strip()
+
+    nested_candidates = (
+        card.get("images"),
+        card.get("imageUrls"),
+        card.get("image_urls"),
+        card.get("art"),
+    )
+    preferred_nested_keys = (
+        "large",
+        "full",
+        "high",
+        "highres",
+        "default",
+        "normal",
+        "medium",
+        "small",
+        "thumb",
+    )
+
+    for candidate in nested_candidates:
+        if not isinstance(candidate, dict):
+            continue
+
+        for key in preferred_nested_keys:
+            value = candidate.get(key)
+            if isinstance(value, str) and value.strip():
+                return value.strip()
+
+        for value in candidate.values():
+            if isinstance(value, str) and value.strip():
+                return value.strip()
+
+    return ""
+
+
 def normalize_card(card: dict[str, Any]) -> dict[str, Any]:
     normalized = dict(card)
 
@@ -130,7 +169,7 @@ def normalize_card(card: dict[str, Any]) -> dict[str, Any]:
             "rarity": str(_first_non_empty(card, ("rarity",), "")).strip(),
             "block_number": str(_first_non_empty(card, ("block_number", "blockNumber", "block"), "")).strip(),
             "set": str(_first_non_empty(card, ("set", "set_name", "setName"), "")).strip(),
-            "image": str(_first_non_empty(card, ("image", "image_url", "img", "thumbnail"), "")).strip(),
+            "image": _extract_image_url(card),
             "text": str(_first_non_empty(card, ("text", "effect", "description"), "")).strip(),
         }
     )
