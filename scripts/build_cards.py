@@ -111,6 +111,7 @@ def normalize_card(card: dict[str, Any]) -> dict[str, Any]:
     category = str(_first_non_empty(card, ("category", "card_type", "type_en", "kind"), "")).strip()
     colors = _as_list(_first_non_empty(card, ("colors", "color"), []))
     attributes = _as_list(_first_non_empty(card, ("attributes", "attribute"), []))
+    types = _as_list(_first_non_empty(card, ("types", "type", "trait"), []))
 
     normalized.update(
         {
@@ -124,6 +125,7 @@ def normalize_card(card: dict[str, Any]) -> dict[str, Any]:
             "counter": _as_int_or_none(_first_non_empty(card, ("counter",), None)),
             "life": _as_int_or_none(_first_non_empty(card, ("life",), None)),
             "attributes": attributes,
+            "types": types,
             "type": str(_first_non_empty(card, ("type", "types", "trait"), "")).strip(),
             "rarity": str(_first_non_empty(card, ("rarity",), "")).strip(),
             "block_number": str(_first_non_empty(card, ("block_number", "blockNumber", "block"), "")).strip(),
