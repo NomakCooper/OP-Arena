@@ -14,11 +14,12 @@ fi
 pushd "$OUT_DIR" >/dev/null
 cargo build --release
 
-# `vega pull all` is interactive: it asks for language and confirmation.
+# `vega pull all` is interactive: it asks for language, output location,
+# and whether to download images.
 # In CI we provide deterministic answers over stdin and, when possible, run
 # under `script` so `vega` still sees a TTY-capable terminal.
 VEGA_PULL_CMD="./target/release/vega pull all"
-VEGA_PULL_INPUT=$'english-asia\ny\n'
+VEGA_PULL_INPUT=$'english\n\nN\n'
 
 if command -v script >/dev/null 2>&1; then
   printf '%s' "$VEGA_PULL_INPUT" | script -q -e -c "$VEGA_PULL_CMD" /dev/null
