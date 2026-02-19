@@ -31,13 +31,14 @@ Pipeline steps:
 
 ## Local scripts
 
-- `scripts/fetch_vegapull.sh`: clones Vegapull
+- `scripts/fetch_vegapull.sh`: clones Vegapull, builds `vega` with Cargo, and runs `vega pull all` to fetch the complete card dataset
 - `scripts/build_cards.py`: merges card files into one `cards.json`
 - `scripts/build_game.py`: builds `game.json` from the merged card set
 
 ## Local run (optional)
 
 ```bash
+# Requires Rust/Cargo to build vegapull's vega CLI
 ./scripts/fetch_vegapull.sh .cache/vegapull
 python scripts/build_cards.py --vegapull-dir .cache/vegapull --output dist/cards.json
 python scripts/build_game.py --cards dist/cards.json --cards-url "https://<owner>.github.io/<repo>/cards.json" --output dist/game.json

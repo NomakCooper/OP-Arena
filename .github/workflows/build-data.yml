@@ -24,6 +24,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
       - name: Fetch Vegapull data
         run: |
           ./scripts/fetch_vegapull.sh .cache/vegapull
