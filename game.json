@@ -1,0 +1,334 @@
+{
+  "name": "One Piece Card Game",
+  "menuBackgroundImage": "https://files.catbox.moe/kqvbme.png",
+  "defaultRessources": {
+    "backgrounds": [
+      "https://files.catbox.moe/kqvbme.png"
+    ],
+    "decksUrl": ""
+  },
+  "customHelp": "Victory: defeat opponent by dealing damage to their Leader when they have 0 Life, or when their deck reaches 0 cards. Setup: 1 Leader, 50-card deck (Characters/Events/Stages), 10-card DON!! deck. Opening hand 5; mulligan once. Turn: Refresh (set rested to active; return given DON!! to cost rested), Draw (skip for first player on first turn), DON!! phase (+1 for first player T1, otherwise +2), Main, End.",
+  "cardRotation": 90,
+  "cards": {
+    "dataUrl": "https://NomakCooper.github.io/OP-Arena/cards.json",
+    "cardBack": "https://cf.geekdo-images.com/cpyej29PfijgBDtiOuSFsQ__imagepage/img/aDMUMr-kD-RtLyOR2sKmzXtaXtk=/fit-in/900x600/filters:no_upscale():strip_icc()/pic6974116.jpg"
+  },
+  "deckBuilding": {
+    "mainFilters": [
+      "colors",
+      "category",
+      "cost",
+      "power",
+      "attributes",
+      "types",
+      "rarity",
+      "block_number"
+    ],
+    "formats": [
+      {
+        "title": "Classic",
+        "gameplay": "OP TCG Classic format",
+        "customCategories": []
+      }
+    ],
+    "filtersDict": {
+      "colors": {
+        "label": "Color",
+        "field": "colors",
+        "type": "multi",
+        "isDictionary": false
+      },
+      "category": {
+        "label": "Category",
+        "field": "category",
+        "type": "multi",
+        "isDictionary": false
+      },
+      "cost": {
+        "label": "Cost",
+        "field": "cost",
+        "type": "range",
+        "isDictionary": false
+      },
+      "power": {
+        "label": "Power",
+        "field": "power",
+        "type": "range",
+        "isDictionary": false
+      },
+      "attributes": {
+        "label": "Attribute",
+        "field": "attributes",
+        "type": "multi",
+        "isDictionary": false
+      },
+      "types": {
+        "label": "Type",
+        "field": "types",
+        "type": "multi",
+        "isDictionary": false
+      },
+      "rarity": {
+        "label": "Rarity",
+        "field": "rarity",
+        "type": "multi",
+        "isDictionary": false
+      },
+      "block_number": {
+        "label": "Block",
+        "field": "block_number",
+        "type": "multi",
+        "isDictionary": false
+      }
+    }
+  },
+  "gameplay": {
+    "Classic": {
+      "mulligan": {
+        "info": "Each player draws 5. Starting with the first player, each may return all cards, shuffle, and redraw 5 once.",
+        "startingHandSize": 5,
+        "drawNewHand": true,
+        "putSelectionAtBottom": false,
+        "drawNewSelectedCards": false
+      },
+      "newTurn": {
+        "drawOnStart": true,
+        "sharedTurn": false,
+        "firstPlayerTokenName": "First Player",
+        "drawPerTurn": 1,
+        "firstPlayerSkipsDrawFirstTurn": true
+      },
+      "defaultNotes": "Characters cannot attack the turn they are played. You can have max 5 Characters and max 1 Stage on the field. You can attack Leader or a rested Character.",
+      "tokens": [
+        {
+          "name": "First Player",
+          "image": "",
+          "isUnique": true,
+          "leavesAtEndOfTurn": false
+        },
+        {
+          "name": "DON!!",
+          "image": "",
+          "isUnique": false,
+          "leavesAtEndOfTurn": false
+        }
+      ],
+      "countersStartingValues": [
+        0
+      ],
+      "hideFacedDownCards": false,
+      "sections": {
+        "customSections": [
+          "Life",
+          "Deck",
+          "Trash",
+          "Leader",
+          "Stage",
+          "Characters",
+          "Cost",
+          "DonDeck"
+        ],
+        "layout": {
+          "direction": "row",
+          "content": [
+            {
+              "direction": "column",
+              "content": [
+                "Life",
+                "DonDeck"
+              ],
+              "noQuickActions": false
+            },
+            {
+              "direction": "column",
+              "content": [
+                "Characters",
+                {
+                  "direction": "row",
+                  "content": [
+                    "Leader",
+                    "Stage",
+                    "Deck"
+                  ],
+                  "noQuickActions": false
+                },
+                "Cost"
+              ],
+              "noQuickActions": false
+            },
+            {
+              "direction": "column",
+              "content": [
+                "Trash"
+              ],
+              "noQuickActions": false
+            }
+          ],
+          "noQuickActions": false,
+          "isSymetricalForOpponents": true
+        },
+        "categoriesAlreadyOnBoard": [],
+        "autoPlayFromHand": {
+          "Character": "Characters",
+          "Stage": "Stage"
+        },
+        "autoPlayFromStack": {},
+        "sectionsDict": {
+          "Life": {
+            "title": "Life",
+            "isHidden": "yes",
+            "height": "MEDIUM",
+            "alignment": "START",
+            "opponentAlignment": false,
+            "isHorizontalAllowed": false,
+            "displayedTitle": "Life",
+            "enterTapped": false,
+            "enterSpun": false,
+            "isGroupForbidden": false,
+            "keepTappedNewTurn": true,
+            "showHiddenCardInHistory": false,
+            "noQuickActions": false
+          },
+          "Deck": {
+            "title": "Deck",
+            "isHidden": "yes",
+            "height": "SMALL",
+            "alignment": "START",
+            "opponentAlignment": false,
+            "isHorizontalAllowed": false,
+            "displayedTitle": "Deck",
+            "enterTapped": false,
+            "enterSpun": false,
+            "isGroupForbidden": true,
+            "keepTappedNewTurn": true,
+            "showHiddenCardInHistory": false,
+            "noQuickActions": false
+          },
+          "Trash": {
+            "title": "Trash",
+            "isHidden": "no",
+            "height": "SMALL",
+            "alignment": "START",
+            "opponentAlignment": false,
+            "isHorizontalAllowed": true,
+            "displayedTitle": "Trash",
+            "enterTapped": false,
+            "enterSpun": false,
+            "isGroupForbidden": false,
+            "keepTappedNewTurn": true,
+            "showHiddenCardInHistory": true,
+            "noQuickActions": false
+          },
+          "Leader": {
+            "title": "Leader",
+            "isHidden": "no",
+            "height": "SMALL",
+            "alignment": "CENTER",
+            "opponentAlignment": false,
+            "isHorizontalAllowed": true,
+            "displayedTitle": "Leader",
+            "enterTapped": false,
+            "enterSpun": false,
+            "isGroupForbidden": true,
+            "keepTappedNewTurn": false,
+            "showHiddenCardInHistory": true,
+            "noQuickActions": false
+          },
+          "Stage": {
+            "title": "Stage",
+            "isHidden": "no",
+            "height": "SMALL",
+            "alignment": "CENTER",
+            "opponentAlignment": false,
+            "isHorizontalAllowed": true,
+            "displayedTitle": "Stage",
+            "enterTapped": false,
+            "enterSpun": false,
+            "isGroupForbidden": true,
+            "keepTappedNewTurn": false,
+            "showHiddenCardInHistory": true,
+            "noQuickActions": false
+          },
+          "Characters": {
+            "title": "Character Area",
+            "isHidden": "no",
+            "height": "LARGE",
+            "alignment": "START",
+            "opponentAlignment": false,
+            "isHorizontalAllowed": true,
+            "displayedTitle": "Character Area (max 5)",
+            "enterTapped": false,
+            "enterSpun": false,
+            "isGroupForbidden": false,
+            "keepTappedNewTurn": false,
+            "showHiddenCardInHistory": true,
+            "noQuickActions": false,
+            "maxCards": 5
+          },
+          "Cost": {
+            "title": "Cost Area",
+            "isHidden": "no",
+            "height": "MEDIUM",
+            "alignment": "START",
+            "opponentAlignment": false,
+            "noAutoPayTo": "true",
+            "isHorizontalAllowed": true,
+            "displayedTitle": "Cost (DON!!)",
+            "enterTapped": false,
+            "enterSpun": false,
+            "isGroupForbidden": false,
+            "keepTappedNewTurn": false,
+            "showHiddenCardInHistory": true,
+            "noQuickActions": false
+          },
+          "DonDeck": {
+            "title": "DON!! Deck",
+            "isHidden": "no",
+            "height": "SMALL",
+            "alignment": "START",
+            "opponentAlignment": false,
+            "isHorizontalAllowed": false,
+            "displayedTitle": "DON!! Deck (open)",
+            "enterTapped": false,
+            "enterSpun": false,
+            "isGroupForbidden": true,
+            "keepTappedNewTurn": true,
+            "showHiddenCardInHistory": true,
+            "noQuickActions": false
+          }
+        }
+      }
+    }
+  },
+  "metadata": {
+    "generatedBy": "scripts/build_game.py",
+    "cardsCount": 4145,
+    "leadersCount": 275,
+    "mainDeckPoolCount": 3870,
+    "detectedColors": [
+      "Black",
+      "Blue",
+      "Green",
+      "Purple",
+      "Red",
+      "Yellow"
+    ],
+    "detectedCategories": [
+      "Character",
+      "Event",
+      "Leader",
+      "Stage"
+    ],
+    "detectedRarities": [
+      "Common",
+      "Leader",
+      "Promo",
+      "Rare",
+      "SecretRare",
+      "Special",
+      "SuperRare",
+      "TreasureRare",
+      "Uncommon"
+    ]
+  }
+}
